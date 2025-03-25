@@ -46,6 +46,48 @@ services:
     networks:
       - app_network
 
+  krakend_ce:
+    image: devopsfaith/krakend:watch
+    volumes:
+      - ./config/krakend:/etc/krakend
+    ports:
+      - "8080:8080"
+    command: ["run", "-d", "-c", "/etc/krakend/krakend.json"]
+    depends_on:
+      - wishlists_service
+      - users_service
+      - jwt_service
+    networks:
+      - app_network
+
+  jaeger:
+    image: jaegertracing/all-in-one:latest
+    ports:
+      - "6831:6831/udp"
+      - "16686:16686"
+      - "4317:4317"
+    networks:
+      - app_network
+  
+  prometheus:
+    image: prom/prometheus
+    volumes:
+      - ./config/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+    ports:
+      - 9090:9090
+    networks:
+      - app_network
+
+  grafana:
+    image: grafana/grafana-oss
+    ports:
+      - 3000:3000
+    restart: unless-stopped
+    volumes:
+      - ./config/grafana/datasources:/etc/grafana/provisioning/datasources
+    networks:
+      - app_network
+
 networks:
   app_network:
     driver: bridge

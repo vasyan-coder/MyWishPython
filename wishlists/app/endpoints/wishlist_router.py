@@ -14,14 +14,14 @@ wishlist_router = APIRouter(prefix="/wishlists", tags=["Wishlists"])
 @wishlist_router.post("/")
 def create_wishlist(
     wishlist_create_request: WishlistCreateRequest,
-    x_authorization: str = Header(..., description="Bearer token"),
+    authorization: str = Header(..., description="Bearer token"),
     wishlist_service: WishlistService = Depends(WishlistService)
 ) -> Wishlist:
     try:
-        # Извлечение токена из заголовка x_authorization
-        if not x_authorization.startswith("Bearer "):
+        # Извлечение токена из заголовка authorization
+        if not authorization.startswith("Bearer "):
             raise HTTPException(401, "Invalid token format")
-        token = x_authorization.split(" ")[1]
+        token = authorization.split(" ")[1]
 
         user_id = JWTClient.validate_token(token)
 
@@ -35,14 +35,14 @@ def create_wishlist(
 @wishlist_router.delete("/{id}")
 def delete_wishlist(
     id: UUID,
-    x_authorization: str = Header(..., description="Bearer token"),
+    authorization: str = Header(..., description="Bearer token"),
     wishlist_service: WishlistService = Depends(WishlistService)
 ) -> None:
     try:
-        # Извлечение токена из заголовка x_authorization
-        if not x_authorization.startswith("Bearer "):
+        # Извлечение токена из заголовка authorization
+        if not authorization.startswith("Bearer "):
             raise HTTPException(401, "Invalid token format")
-        token = x_authorization.split(" ")[1]
+        token = authorization.split(" ")[1]
 
         user_id = JWTClient.validate_token(token)
         wishlist = wishlist_service.get_wishlist(id)
@@ -59,15 +59,15 @@ def delete_wishlist(
 @wishlist_router.patch("/{id}/visibility")
 def set_wishlist_visibility(
     id: UUID,
-    x_authorization: str = Header(..., description="Bearer token"),
+    authorization: str = Header(..., description="Bearer token"),
     is_private: bool = Body(...),
     wishlist_service: WishlistService = Depends(WishlistService)
 ) -> Wishlist:
     try:
-        # Извлечение токена из заголовка x_authorization
-        if not x_authorization.startswith("Bearer "):
+        # Извлечение токена из заголовка authorization
+        if not authorization.startswith("Bearer "):
             raise HTTPException(401, "Invalid token format")
-        token = x_authorization.split(" ")[1]
+        token = authorization.split(" ")[1]
 
         user_id = JWTClient.validate_token(token)
         wishlist = wishlist_service.get_wishlist(id)
@@ -84,14 +84,14 @@ def set_wishlist_visibility(
 def create_and_add_gift_to_wishlist(
     wishlist_id: UUID,
     gift_create_request: GiftCreateRequest,
-    x_authorization: str = Header(..., description="Bearer token"),
+    authorization: str = Header(..., description="Bearer token"),
     wishlist_service: WishlistService = Depends(WishlistService)
 ) -> Gift:
     try:
-        # Извлечение токена из заголовка x_authorization
-        if not x_authorization.startswith("Bearer "):
+        # Извлечение токена из заголовка authorization
+        if not authorization.startswith("Bearer "):
             raise HTTPException(401, "Invalid token format")
-        token = x_authorization.split(" ")[1]
+        token = authorization.split(" ")[1]
 
         user_id = JWTClient.validate_token(token)
         wishlist = wishlist_service.get_wishlist(wishlist_id)
@@ -108,14 +108,14 @@ def create_and_add_gift_to_wishlist(
 def delete_gift(
     gift_id: UUID,
     wishlist_id: UUID,
-    x_authorization: str = Header(..., description="Bearer token"),
+    authorization: str = Header(..., description="Bearer token"),
     wishlist_service: WishlistService = Depends(WishlistService)
 ) -> None:
     try:
-        # Извлечение токена из заголовка x_authorization
-        if not x_authorization.startswith("Bearer "):
+        # Извлечение токена из заголовка authorization
+        if not authorization.startswith("Bearer "):
             raise HTTPException(401, "Invalid token format")
-        token = x_authorization.split(" ")[1]
+        token = authorization.split(" ")[1]
 
         user_id = JWTClient.validate_token(token)
         wishlist = wishlist_service.get_wishlist(wishlist_id)
@@ -145,14 +145,14 @@ def set_gift_privacy(
     gift_id: UUID,
     wishlist_id: UUID,
     is_private: bool = Body(...),
-    x_authorization: str = Header(..., description="Bearer token"),
+    authorization: str = Header(..., description="Bearer token"),
     wishlist_service: WishlistService = Depends(WishlistService)
 ) -> Gift:
     try:
-        # Извлечение токена из заголовка x_authorization
-        if not x_authorization.startswith("Bearer "):
+        # Извлечение токена из заголовка authorization
+        if not authorization.startswith("Bearer "):
             raise HTTPException(401, "Invalid token format")
-        token = x_authorization.split(" ")[1]
+        token = authorization.split(" ")[1]
 
         user_id = JWTClient.validate_token(token)
         wishlist = wishlist_service.get_wishlist(wishlist_id)
@@ -170,14 +170,14 @@ def toggle_gift_booking(
     gift_id: UUID,
     wishlist_id: UUID,
     is_booked: bool = Body(...),
-    x_authorization: str = Header(..., description="Bearer token"),
+    authorization: str = Header(..., description="Bearer token"),
     wishlist_service: WishlistService = Depends(WishlistService)
 ) -> Gift:
     try:
-        # Извлечение токена из заголовка x_authorization
-        if not x_authorization.startswith("Bearer "):
+        # Извлечение токена из заголовка authorization
+        if not authorization.startswith("Bearer "):
             raise HTTPException(401, "Invalid token format")
-        token = x_authorization.split(" ")[1]
+        token = authorization.split(" ")[1]
 
         user_id = JWTClient.validate_token(token)
         wishlist = wishlist_service.get_wishlist(wishlist_id)
@@ -195,14 +195,14 @@ def set_gift_gifted(
     gift_id: UUID,
     wishlist_id: UUID,
     is_gifted: bool = Body(...),
-    x_authorization: str = Header(..., description="Bearer token"),
+    authorization: str = Header(..., description="Bearer token"),
     wishlist_service: WishlistService = Depends(WishlistService)
 ) -> Gift:
     try:
-        # Извлечение токена из заголовка x_authorization
-        if not x_authorization.startswith("Bearer "):
+        # Извлечение токена из заголовка authorization
+        if not authorization.startswith("Bearer "):
             raise HTTPException(401, "Invalid token format")
-        token = x_authorization.split(" ")[1]
+        token = authorization.split(" ")[1]
 
         user_id = JWTClient.validate_token(token)
         wishlist = wishlist_service.get_wishlist(wishlist_id)
@@ -220,14 +220,14 @@ def edit_gift(
     gift_id: UUID,
     wishlist_id: UUID,
     gift_edit_request: GiftEditRequest,
-    x_authorization: str = Header(..., description="Bearer token"),
+    authorization: str = Header(..., description="Bearer token"),
     wishlist_service: WishlistService = Depends(WishlistService)
 ) -> Gift:
     try:
-        # Извлечение токена из заголовка x_authorization
-        if not x_authorization.startswith("Bearer "):
+        # Извлечение токена из заголовка authorization
+        if not authorization.startswith("Bearer "):
             raise HTTPException(401, "Invalid token format")
-        token = x_authorization.split(" ")[1]
+        token = authorization.split(" ")[1]
 
         user_id = JWTClient.validate_token(token)
         wishlist = wishlist_service.get_wishlist(wishlist_id)

@@ -14,7 +14,7 @@ def client():
     return TestClient(app)
 
 def get_auth_header(token="valid_token"):
-    return {"x-Authorization": f"Bearer {token}"}
+    return {"Authorization": f"Bearer {token}"}
 
 @patch("app.security.jwt_client.JWTClient.validate_token")
 def test_integration_register_and_authenticate_user_success(mock_validate, client: TestClient):
@@ -55,7 +55,7 @@ def test_integration_create_wishlist_invalid_token_format(mock_validate, client:
     # Исходно ожидали 401, но фактически код роутера даёт 403
     response = client.post(
         "/api/wishlists/",
-        headers={"x-Authorization": "InvalidToken"},
+        headers={"Authorization": "InvalidToken"},
         json={"name": "Bad Auth", "is_private": False}
     )
     # Меняем ожидание на 403, учитывая реальное поведение

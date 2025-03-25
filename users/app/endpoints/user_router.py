@@ -22,7 +22,7 @@ def register_user(
     try:
         return user_service.register_user(request.login, request.password)
     except KeyError as e:
-        raise HTTPException(400, str(e))
+        raise HTTPException(409, str(e))
 
 
 @user_router.post("/login")
@@ -40,15 +40,15 @@ def authenticate_user(
 @user_router.post("/{friend_id}/friends")
 def add_friend(
     friend_id: UUID,
-    x_authorization: str = Header(..., description="Bearer token"),
+    authorization: str = Header(..., description="Bearer token"),
     db: Session = Depends(get_db)
 ) -> Friends:
     try:
         user_service = UserService(db)
-        # Извлечение токена из заголовка x_authorization
-        if not x_authorization.startswith("Bearer "):
+        # Извлечение токена из заголовка authorization
+        if not authorization.startswith("Bearer "):
             raise HTTPException(401, "Invalid token format")
-        token = x_authorization.split(" ")[1]
+        token = authorization.split(" ")[1]
 
         user_id = JWTClient.validate_token(token)
 
@@ -62,16 +62,16 @@ def add_friend(
 @user_router.delete("/friends/{friend_id}")
 def delete_friend(
     friend_id: UUID,
-    x_authorization: str = Header(..., description="Bearer token"),
+    authorization: str = Header(..., description="Bearer token"),
     db: Session = Depends(get_db)
 ) -> dict:
     user_service = UserService(db)
     try:
         user_service = UserService(db)
-        # Извлечение токена из заголовка x_authorization
-        if not x_authorization.startswith("Bearer "):
+        # Извлечение токена из заголовка authorization
+        if not authorization.startswith("Bearer "):
             raise HTTPException(401, "Invalid token format")
-        token = x_authorization.split(" ")[1]
+        token = authorization.split(" ")[1]
 
         user_id = JWTClient.validate_token(token)
         user_service.delete_friend(user_id, friend_id)
@@ -85,10 +85,10 @@ def delete_friend(
 @user_router.get("/check_interests")
 def check_interests(
     interests: str = Body(...),
-    x_authorization: str = Header(..., description="Bearer token"),
+    authorization: str = Header(..., description="Bearer token"),
 ) -> dict:
-    # Извлечение токена из заголовка x_authorization
-    if not x_authorization.startswith("Bearer "):
+    # Извлечение токена из заголовка authorization
+    if not authorization.startswith("Bearer "):
         raise HTTPException(401, "Invalid token format")
     
     return {"detail": f"Your interests: {interests}"}
@@ -97,10 +97,10 @@ def check_interests(
 @user_router.patch("/change_interests")
 def change_interests(
     interests: str = Body(...),
-    x_authorization: str = Header(..., description="Bearer token"),
+    authorization: str = Header(..., description="Bearer token"),
 ) -> dict:
-    # Извлечение токена из заголовка x_authorization
-    if not x_authorization.startswith("Bearer "):
+    # Извлечение токена из заголовка authorization
+    if not authorization.startswith("Bearer "):
         raise HTTPException(401, "Invalid token format")
     return {"detail": f"Your changed interests: {interests}"}
 

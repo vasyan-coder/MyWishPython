@@ -1,0 +1,253 @@
+{
+  "version": 3,
+  "endpoints": [
+    {
+      "endpoint": "/api/wishlists/",
+      "method": "POST",
+      "output_encoding": "no-op",
+      "input_headers": ["Authorization"],
+      "backend": [
+        {
+          "host": [
+            "http://wishlists_service:8080"
+          ],
+          "url_pattern": "/api/wishlists/"
+        }
+      ]
+    },
+    {
+      "endpoint": "/api/wishlists/{id}",
+      "method": "DELETE",
+      "output_encoding": "no-op",
+      "backend": [
+        {
+          "host": [
+            "http://wishlists_service:8080"
+          ],
+          "url_pattern": "/api/wishlists/{id}"
+        }
+      ]
+    },
+    {
+      "endpoint": "/api/wishlists/{id}/visibility",
+      "method": "PATCH",
+      "output_encoding": "no-op",
+      "backend": [
+        {
+          "host": [
+            "http://wishlists_service:8080"
+          ],
+          "url_pattern": "/api/wishlists/{id}/visibility"
+        }
+      ]
+    },
+    {
+      "endpoint": "/api/wishlists/{id}/gifts",
+      "method": "POST",
+      "output_encoding": "no-op",
+      "backend": [
+        {
+          "host": [
+            "http://wishlists_service:8080"
+          ],
+          "url_pattern": "/api/wishlists/{id}/gifts"
+        }
+      ]
+    },
+    {
+      "endpoint": "/api/wishlists/gifts/{wishlist_id}/{gift_id}",
+      "method": "DELETE",
+      "output_encoding": "no-op",
+      "backend": [
+        {
+          "host": [
+            "http://wishlists_service:8080"
+          ],
+          "url_pattern": "/api/wishlists/gifts/{wishlist_id}/{gift_id}"
+        }
+      ]
+    },
+    {
+      "endpoint": "/api/wishlists/get/{id}",
+      "method": "GET",
+      "output_encoding": "no-op",
+      "backend": [
+        {
+          "host": [
+            "http://wishlists_service:8080"
+          ],
+          "url_pattern": "/api/wishlists/get/{id}"
+        }
+      ]
+    },
+    {
+      "endpoint": "/api/wishlists/gifts/{wishlist_id}/{gift_id}/booking",
+      "method": "PATCH",
+      "output_encoding": "no-op",
+      "backend": [
+        {
+          "host": [
+            "http://wishlists_service:8080"
+          ],
+          "url_pattern": "/api/wishlists/gifts/{wishlist_id}/{gift_id}/booking"
+        }
+      ]
+    },
+    {
+      "endpoint": "/api/wishlists/gifts/{wishlist_id}/{gift_id}/privacy",
+      "method": "PATCH",
+      "output_encoding": "no-op",
+      "backend": [
+        {
+          "host": [
+            "http://wishlists_service:8080"
+          ],
+          "url_pattern": "/api/wishlists/gifts/{wishlist_id}/{gift_id}/privacy"
+        }
+      ]
+    },
+    {
+      "endpoint": "/api/wishlists/gifts/{wishlist_id}/{gift_id}/gifted",
+      "method": "PATCH",
+      "output_encoding": "no-op",
+      "backend": [
+        {
+          "host": [
+            "http://wishlists_service:8080"
+          ],
+          "url_pattern": "/api/wishlists/gifts/{wishlist_id}/{gift_id}/gifted"
+        }
+      ]
+    },
+    {
+      "endpoint": "/api/wishlists/gifts/{wishlist_id}/{gift_id}",
+      "method": "PUT",
+      "output_encoding": "no-op",
+      "backend": [
+        {
+          "host": [
+            "http://wishlists_service:8080"
+          ],
+          "url_pattern": "/api/wishlists/gifts/{wishlist_id}/{gift_id}"
+        }
+      ]
+    },
+    {
+      "endpoint": "/api/users/register",
+      "method": "POST",
+      "output_encoding": "no-op",
+      "backend": [
+        {
+          "host": [
+            "http://users_service:8080"
+          ],
+          "url_pattern": "/api/users/register"
+        }
+      ]
+    },
+    {
+      "endpoint": "/api/users/login",
+      "method": "POST",
+      "output_encoding": "no-op",
+      "backend": [
+        {
+          "host": [
+            "http://users_service:8080"
+          ],
+          "url_pattern": "/api/users/login"
+        }
+      ]
+    },
+    {
+      "endpoint": "/api/users/{id}/friends",
+      "method": "POST",
+      "output_encoding": "no-op",
+      "backend": [
+        {
+          "host": [
+            "http://users_service:8080"
+          ],
+          "url_pattern": "/api/users/{id}/friends"
+        }
+      ]
+    },
+    {
+      "endpoint": "/api/users/friends/{id}",
+      "method": "DELETE",
+      "output_encoding": "no-op",
+      "backend": [
+        {
+          "host": [
+            "http://users_service:8080"
+          ],
+          "url_pattern": "/api/users/friends/{id}"
+        }
+      ]
+    },
+    {
+      "endpoint": "/api/users/check_interests",
+      "method": "GET",
+      "output_encoding": "no-op",
+      "backend": [
+        {
+          "host": [
+            "http://users_service:8080"
+          ],
+          "url_pattern": "/api/users/check_interests"
+        }
+      ]
+    },
+    {
+      "endpoint": "/api/users/change_interests",
+      "method": "PATCH",
+      "output_encoding": "no-op",
+      "backend": [
+        {
+          "host": [
+            "http://users_service:8080"
+          ],
+          "url_pattern": "/api/users/change_interests"
+        }
+      ]
+    },
+    {
+      "endpoint": "/api/users/{id}/share",
+      "method": "GET",
+      "backend": [
+        {
+          "host": [
+            "http://users_service:8080"
+          ],
+          "url_pattern": "/api/users/{id}/share"
+        },
+        {
+          "host": [
+            "http://wishlists_service:8080"
+          ],
+          "url_pattern": "/api/wishlists/get/{id}"
+        }
+      ]
+    }
+  ],
+  "extra_config": {
+    "telemetry/opencensus": {
+      "sample_rate": 100,
+      "reporting_period": 0,
+      "exporters": {
+        "jaeger": {
+          "endpoint": "http://jaeger:14268/api/traces",
+          "service_name": "krakend",
+          "buffer_max_count": 1000
+        },
+        "prometheus": {
+          "port": 9091,
+          "namespace": "krakend",
+          "tag_host": false,
+          "tag_path": true,
+          "tag_method": true,
+          "tag_statuscode": false
+        }
+      }
+    }
+  }
+}
