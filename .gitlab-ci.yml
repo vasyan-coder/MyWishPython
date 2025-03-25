@@ -1,0 +1,174 @@
+stages:
+  - build
+  - delivery
+  - deploy
+
+run-unit-tests-users:
+  stage: build
+  image: python:3.12
+  only:
+    changes:
+      - users/**
+  before_script:
+    - apt-get update && apt-get install -y libpq-dev
+    - pip install --upgrade pip
+    - pip install -r users/requirements.txt
+    - pip install pytest pytest-asyncio
+  script:
+    - pytest ./users/tests/test_unit_user_service.py --disable-warnings --junitxml=./users/report_users_unit.xml
+  artifacts:
+    when: always
+    reports:
+      junit:
+        - ./users/report_users_unit.xml
+    paths:
+      - ./users/tests/.pytest_cache
+      - ./users/report_users_unit.xml
+    expire_in: "7 days"
+
+run-unit-tests-wishlists:
+  stage: build
+  image: python:3.12
+  only:
+    changes:
+      - wishlists/**
+  before_script:
+    - apt-get update && apt-get install -y libpq-dev
+    - pip install --upgrade pip
+    - pip install -r wishlists/requirements.txt
+    - pip install pytest pytest-asyncio
+  script:
+    - pytest ./wishlists/tests/test_unit_wishlist_service.py --disable-warnings --junitxml=./wishlists/report_wishlists_unit.xml
+  artifacts:
+    when: always
+    reports:
+      junit:
+        - ./wishlists/report_wishlists_unit.xml
+    paths:
+      - ./wishlists/tests/.pytest_cache
+      - ./wishlists/report_wishlists_unit.xml
+    expire_in: "7 days"
+
+build-image-users:
+  stage: delivery
+  needs:
+    - run-unit-tests-users
+  only:
+    changes:
+      - users/**
+  image: docker:20.10.16
+  services:
+    - docker:20.10.16-dind
+  before_script:
+    - echo "${YC_KEYS}" > /tmp/yc_keys.json
+    - docker login cr.yandex -u json_key -p "${YC_KEYS}"
+  script:
+    - docker build -t cr.yandex/${YC_REGISTRY_ID}/pel_07_21-users_service:latest -f users/Dockerfile ./users
+    - docker push cr.yandex/${YC_REGISTRY_ID}/pel_07_21-users_service:latest
+
+build-image-wishlists:
+  stage: delivery
+  needs:
+    - run-unit-tests-wishlists
+  only:
+    changes:
+      - wishlists/**
+  image: docker:20.10.16
+  services:
+    - docker:20.10.16-dind
+  before_script:
+    - echo "${YC_KEYS}" > /tmp/yc_keys.json
+    - docker login cr.yandex -u json_key -p "${YC_KEYS}"
+  script:
+    - docker build -t cr.yandex/${YC_REGISTRY_ID}/pel_07_21-wishlists_service:latest -f wishlists/Dockerfile ./wishlists
+    - docker push cr.yandex/${YC_REGISTRY_ID}/pel_07_21-wishlists_service:latest
+
+build-image-jwt:
+  stage: delivery
+  only:
+    changes:
+      - jwt/**
+  image: docker:20.10.16
+  services:
+    - docker:20.10.16-dind
+  before_script:
+    - echo "${YC_KEYS}" > /tmp/yc_keys.json
+    - docker login cr.yandex -u json_key -p "${YC_KEYS}"
+  script:
+    - docker build -t cr.yandex/${YC_REGISTRY_ID}/pel_07_21-jwt_service:latest -f jwt/Dockerfile ./jwt
+    - docker push cr.yandex/${YC_REGISTRY_ID}/pel_07_21-jwt_service:latest
+
+push-to-yandex-cr-users:
+  stage: deploy
+  needs:
+    - build-image-users
+  only:
+    changes:
+      - users/**
+  image: node:14
+  before_script:
+    - apt-get update && apt-get install -y curl
+    - curl https://storage.yandexcloud.net/yandexcloud-yc/install.sh | bash
+    - export PATH=$PATH:/root/yandex-cloud/bin
+    - echo "${YC_KEYS}" > /tmp/yc_keys.json
+    - yc config set service-account-key /tmp/yc_keys.json
+    - yc config set folder-id "${YC_FOLDER_ID}"
+  script:
+    - |
+      yc sls container revision deploy \
+        --container-name="${YC_CONTAINER_USERS_NAME}" \
+        --image="cr.yandex/${YC_REGISTRY_ID}/pel_07_21-users_service:latest" \
+        --service-account-id="${YC_SA_ID}" \
+        --memory=1024MB \
+        --execution-timeout=60s \
+        --environment DATABASE_URL=${DATABASE_URL},JWT_SERVICE_BASE_URL=${JWT_SERVICE_BASE_URL},BASE_URL_WISHLIST_SERVICE=${BASE_URL_WISHLIST_SERVICE}
+
+push-to-yandex-cr-wishlists:
+  stage: deploy
+  needs:
+    - build-image-wishlists
+  only:
+    changes:
+      - wishlists/**
+  image: node:14
+  before_script:
+    - apt-get update && apt-get install -y curl
+    - curl https://storage.yandexcloud.net/yandexcloud-yc/install.sh | bash
+    - export PATH=$PATH:/root/yandex-cloud/bin
+    - echo "${YC_KEYS}" > /tmp/yc_keys.json
+    - yc config set service-account-key /tmp/yc_keys.json
+    - yc config set folder-id "${YC_FOLDER_ID}"
+  script:
+    - |
+      yc sls container revision deploy \
+        --container-name="${YC_CONTAINER_WISHLISTS_NAME}" \
+        --image="cr.yandex/${YC_REGISTRY_ID}/pel_07_21-wishlists_service:latest" \
+        --service-account-id="${YC_SA_ID}" \
+        --memory=1024MB \
+        --execution-timeout=60s \
+        --environment JWT_SERVICE_BASE_URL=${JWT_SERVICE_BASE_URL}
+
+push-to-yandex-cr-jwt:
+  stage: deploy
+  needs:
+    - build-image-jwt
+  only:
+    changes:
+      - jwt/**
+  image: node:14
+  before_script:
+    - apt-get update && apt-get install -y curl
+    - curl https://storage.yandexcloud.net/yandexcloud-yc/install.sh | bash
+    - export PATH=$PATH:/root/yandex-cloud/bin
+    - echo "${YC_KEYS}" > /tmp/yc_keys.json
+    - yc config set service-account-key /tmp/yc_keys.json
+    - yc config set folder-id "${YC_FOLDER_ID}"
+    
+  script:
+    - |
+      yc sls container revision deploy \
+        --container-name="${YC_CONTAINER_JWT_NAME}" \
+        --image="cr.yandex/${YC_REGISTRY_ID}/pel_07_21-jwt_service:latest" \
+        --service-account-id="${YC_SA_ID}" \
+        --memory=1024MB \
+        --execution-timeout=60s

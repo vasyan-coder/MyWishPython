@@ -1,0 +1,54 @@
+version: '3.9'
+
+services:
+  wishlists_service:
+    build:
+      context: ./wishlists
+    ports:
+      - "8000:8080"
+    environment:
+      - JWT_SERVICE_BASE_URL=http://jwt_service:8080
+    networks:
+      - app_network
+
+  users_service:
+    build:
+      context: ./users
+    ports:
+      - "8001:8080"
+    environment:
+      - DATABASE_URL=postgresql://users_user:users_password@db_users:5432/users_db
+      - JWT_SERVICE_BASE_URL=http://jwt_service:8080
+      - BASE_URL_WISHLIST_SERVICE=http://wishlists_service:8080
+    depends_on:
+      - db_users
+    networks:
+      - app_network
+    
+  jwt_service:
+    build:
+      context: ./jwt
+    ports:
+      - "8002:8080"
+    networks:
+      - app_network
+
+  db_users:
+    image: postgres:13
+    environment:
+      POSTGRES_USER: users_user
+      POSTGRES_PASSWORD: users_password
+      POSTGRES_DB: users_db
+    ports:
+      - "5434:5432"
+    volumes:
+      - db_users_data:/var/lib/postgresql/data
+    networks:
+      - app_network
+
+networks:
+  app_network:
+    driver: bridge
+
+volumes:
+  db_users_data:
